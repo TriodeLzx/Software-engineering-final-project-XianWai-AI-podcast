@@ -7,10 +7,8 @@ class BaiduTTS:
 
     将文本转换为MP3音频文件，支持多种语音参数配置
     """
-
     def __init__(self, app_id, api_key, secret_key):
         """初始化百度TTS客户端
-
         Args:
             app_id: 百度云控制台创建的APP_ID
             api_key: 百度云控制台获取的API_KEY
@@ -34,7 +32,6 @@ class BaiduTTS:
     def text_to_speech(self, text, output_file='output.mp3', lang='zh',
                        options=None, cuid='python_tts_client'):
         """将文本转换为语音并保存为MP3文件
-
         Args:
             text: 要转换的文本（必须小于1024字节）[citation:5]
             output_file: 输出的MP3文件名
@@ -85,7 +82,6 @@ class BaiduTTS:
 
     def set_default_option(self, key, value):
         """设置默认语音参数
-
         Args:
             key: 参数名，如'vol', 'spd', 'pit', 'per'
             value: 参数值
@@ -98,7 +94,6 @@ class BaiduTTS:
 
     def get_supported_voices(self):
         """获取支持的发音人列表
-
         Returns:
             dict: 发音人编号和描述
         """
@@ -124,7 +119,6 @@ class BaiduTTS:
     def text_to_speech_with_retry(self, text, output_file='output.mp3',
                                   max_retries=3, **kwargs):
         """带重试机制的文本转语音
-
         Args:
             text: 要转换的文本
             output_file: 输出的MP3文件名
@@ -162,7 +156,7 @@ if __name__ == "__main__":
 
     tts = BaiduTTS(APP_ID, API_KEY, SECRET_KEY)
 
-    text = "欢迎使用百度语音合成服务，这是一个测试示例。"
+    text = "生活就像海洋，只有意志坚强的人才能到达彼岸"
     success, result = tts.text_to_speech(text, "basic_output.mp3")
 
     if success:
