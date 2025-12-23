@@ -1,3 +1,252 @@
+const podcast = {
+    title: 'AI 创作者的自我修炼：从灵感到落地',
+    desc: '聚焦「创作效率、结构化表达、协同讨论」三个维度，拆解如何用 AI 让播客从灵感到成片更高效、更有深度。',
+    tags: ['AI 播客', '创作方法', '结构化思考', '协同讨论'],
+    meta: { host: 'XIANWAI Studio', guest: 'AI Lab', duration: '42:16', publish: '2025/12/18', listens: '12.4k', saves: '3.1k' },
+    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    theme: '本期核心讨论如何将 AI 嵌入到播客创作流程：从主题发现、提纲拆分，到分段聚焦讨论与个性化推荐，帮助创作者与听众在同一条时间线上形成「可协作、可追踪」的知识沉淀。',
+    takeaways: [
+        '主旨：用结构化分段让 AI 与听众在同一上下文协同',
+        '方法：每个分段都有可讨论的焦点问题与关键论点',
+        '体验：听播行为反哺推荐，自动推送垂直深潜内容'
+    ],
+    segments: [
+        { id: 'seg-1', title: '开场 & 主题主旨', start: '00:00', end: '04:35', summary: '阐述本期目标：AI 作为「第二制作人」，帮助创作者完成主题提炼与结构搭建。', focus: '为什么需要结构化的播客？', keywords: ['创作痛点', 'AI 角色', '结构化价值'] },
+        { id: 'seg-2', title: '内容拆解方法', start: '04:36', end: '12:10', summary: '示例化拆解流程：主题 → 核心论点 → 分段问题 → 输出模版。', focus: '如何把宽泛主题拆成可讨论的块？', keywords: ['提纲', '论点', '模版'] },
+        { id: 'seg-3', title: '协同讨论体验', start: '12:11', end: '24:20', summary: '听众点击分段即可与 AI/他人同步讨论，保留上下文，避免信息错位。', focus: '让讨论跟随时间轴展开', keywords: ['分段讨论', '上下文保持', '实时协同'] },
+        { id: 'seg-4', title: '行为驱动推荐', start: '24:21', end: '35:10', summary: '利用收听偏好、关注作者与重点选择，推送垂直深化内容。', focus: '如何用行为信号做垂直推荐？', keywords: ['推荐', '偏好', '垂直扩展'] },
+        { id: 'seg-5', title: '收束与行动项', start: '35:11', end: '42:16', summary: '总结行动建议：即刻选一个分段作为焦点，发起讨论或延伸阅读。', focus: '下一步行动怎么做？', keywords: ['总结', '行动', '实践'] }
+    ],
+    recommendations: [
+        { title: '案例：3 天做完一档 AI 主题播客', meta: '制作流程 · 18 分钟 · 热度 2.3k' },
+        { title: '模版包：主题拆解与分段提问集合', meta: '可下载 · 15 个模版 · 适配长/短节目' },
+        { title: '讨论串：听众最关注的 7 个话题', meta: '实时更新 · 关注度 4.6k' }
+    ],
+    discussions: [
+        { segmentId: 'seg-2', user: 'Nova', role: '听众', content: '能否分享一个把「AI 在教育」拆成 5 段的示例？', time: '2 分钟前' },
+        { segmentId: 'seg-3', user: 'AI 助理', role: 'AI', content: '已为你锁定第 3 段，是否开启协同白板并邀请好友加入？', time: '5 分钟前' },
+        { segmentId: 'seg-4', user: 'Chen', role: '听众', content: '偏好信号能否区分「浅听」与「深听」？', time: '12 分钟前' }
+    ]
+};
+
+let activeSegment = podcast.segments[0].id;
+const drawer = document.getElementById('discussionDrawer');
+const drawerMask = document.getElementById('drawerMask');
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderHero();
+    renderSegments();
+    renderAnalysis();
+    renderBreakdown();
+    renderRecommendations();
+    renderDiscussion();
+    bindAudio();
+    bindDrawerControls();
+});
+
+function renderHero() {
+    document.getElementById('podcastTitle').textContent = podcast.title;
+    document.getElementById('podcastDesc').textContent = podcast.desc;
+
+    const tags = document.getElementById('podcastTags');
+    tags.innerHTML = podcast.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+    const meta = document.getElementById('podcastMeta');
+    meta.innerHTML = [
+        `主持人：${podcast.meta.host}`,
+        `嘉宾：${podcast.meta.guest}`,
+        `时长：${podcast.meta.duration}`,
+        `播放：${podcast.meta.listens}`,
+        `收藏：${podcast.meta.saves}`
+    ].map(t => `<span>${t}</span>`).join('·');
+}
+
+function renderSegments() {
+    const list = document.getElementById('segmentList');
+    list.innerHTML = podcast.segments.map(seg => `
+        <div class="segment-item ${seg.id === activeSegment ? 'active' : ''}" data-id="${seg.id}" data-start="${seg.start}">
+            <div class="segment-time">${seg.start}</div>
+            <div class="segment-body">
+                <div class="segment-title">${seg.title}</div>
+                <div class="segment-desc">${seg.summary}</div>
+                <div class="segment-meta">
+                    <span class="chip">${seg.focus}</span>
+                    ${seg.keywords.map(k => `<span class="chip gray">${k}</span>`).join('')}
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    list.querySelectorAll('.segment-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.dataset.id;
+            activeSegment = id;
+            highlightSegment();
+            openDrawer(id);
+            seekAudio(item.dataset.start);
+        });
+    });
+}
+
+function highlightSegment() {
+    document.querySelectorAll('.segment-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.id === activeSegment);
+    });
+}
+
+function renderAnalysis() {
+    document.getElementById('analysisTheme').textContent = podcast.theme;
+    document.getElementById('takeawayList').innerHTML = podcast.takeaways.map(t => `<span class="chip">${t}</span>`).join('');
+}
+
+function renderBreakdown() {
+    const container = document.getElementById('breakdownList');
+    container.innerHTML = podcast.segments.map(seg => `
+        <div class="breakdown-item">
+            <div class="breakdown-title">${seg.title}</div>
+            <div class="breakdown-meta">${seg.start} - ${seg.end}</div>
+            <div class="segment-desc">${seg.summary}</div>
+            <div class="breakdown-actions">
+                <span class="chip">${seg.focus}</span>
+                ${seg.keywords.map(k => `<span class="chip gray">${k}</span>`).join('')}
+                <button class="btn ghost" data-id="${seg.id}">进入讨论</button>
+            </div>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('button[data-id]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeSegment = btn.dataset.id;
+            highlightSegment();
+            openDrawer(activeSegment);
+        });
+    });
+}
+
+function renderRecommendations() {
+    const container = document.getElementById('recommendList');
+    container.innerHTML = podcast.recommendations.map(r => `
+        <div class="recommend-item">
+            <h4>${r.title}</h4>
+            <div class="meta">${r.meta}</div>
+        </div>
+    `).join('');
+}
+
+function renderDiscussion() {
+    const container = document.getElementById('discussionList');
+    container.innerHTML = podcast.discussions.map(d => `
+        <div class="discussion-bubble">
+            <strong>${lookupSegmentTitle(d.segmentId)}</strong> · ${d.user} (${d.role})
+            <div>${d.content}</div>
+            <div class="meta">${d.time}</div>
+        </div>
+    `).join('');
+}
+
+function bindAudio() {
+    const audio = document.getElementById('mainAudio');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const playBtn = document.getElementById('playMainBtn');
+
+    audio.src = podcast.audioUrl;
+    playBtn.addEventListener('click', () => audio.play());
+
+    audio.addEventListener('timeupdate', () => {
+        if (!audio.duration) return;
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressFill.style.width = `${percent}%`;
+        progressText.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+    });
+}
+
+function bindDrawerControls() {
+    document.getElementById('openDiscussionBtn').addEventListener('click', () => openDrawer(activeSegment));
+    document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
+    drawerMask.addEventListener('click', closeDrawer);
+    document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+}
+
+function openDrawer(segmentId) {
+    const seg = podcast.segments.find(s => s.id === segmentId);
+    if (!seg) return;
+    document.getElementById('drawerTitle').textContent = seg.title;
+    document.getElementById('drawerMeta').textContent = `${seg.start} - ${seg.end} · ${seg.focus}`;
+    document.getElementById('drawerSummary').textContent = seg.summary;
+
+    renderDrawerMessages(segmentId);
+    drawer.classList.add('open');
+    drawerMask.classList.add('show');
+    activeSegment = segmentId;
+    highlightSegment();
+}
+
+function closeDrawer() {
+    drawer.classList.remove('open');
+    drawerMask.classList.remove('show');
+}
+
+function renderDrawerMessages(segmentId) {
+    const container = document.getElementById('drawerMessages');
+    const messages = podcast.discussions.filter(d => d.segmentId === segmentId);
+    if (messages.length === 0) {
+        container.innerHTML = '<div class="message">还没有讨论，来发表第一个想法吧。</div>';
+        return;
+    }
+    container.innerHTML = messages.map(m => `
+        <div class="message">
+            <div class="meta">${m.user} · ${m.role} · ${m.time}</div>
+            <div>${m.content}</div>
+        </div>
+    `).join('');
+}
+
+function sendMessage() {
+    const input = document.getElementById('drawerInput');
+    const content = input.value.trim();
+    if (!content) return;
+    podcast.discussions.unshift({
+        segmentId: activeSegment,
+        user: '你',
+        role: '听众',
+        content,
+        time: '刚刚'
+    });
+    input.value = '';
+    renderDrawerMessages(activeSegment);
+    renderDiscussion();
+}
+
+function seekAudio(startStr) {
+    const audio = document.getElementById('mainAudio');
+    const seconds = parseTimeToSeconds(startStr);
+    if (!isNaN(seconds)) {
+        audio.currentTime = seconds;
+        audio.play();
+    }
+}
+
+function parseTimeToSeconds(str) {
+    const [m, s] = str.split(':').map(Number);
+    if (isNaN(m) || isNaN(s)) return 0;
+    return m * 60 + s;
+}
+
+function formatTime(sec) {
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+}
+
+function lookupSegmentTitle(id) {
+    const seg = podcast.segments.find(s => s.id === id);
+    return seg ? seg.title : '未命名分段';
+}
+
+function handleLogout() {
+    window.location.href = '/logout';
+}
 // 全局变量
 let currentAudioUrl = null;
 let currentAudioFilename = null;

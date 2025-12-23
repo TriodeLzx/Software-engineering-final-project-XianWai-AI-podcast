@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>弦外 - 智能播客创作工具</title>
+    <title>弦外 · AI 播客分析与讨论</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
@@ -16,271 +15,164 @@
                     <path d="M30 50 L45 35 L70 60" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
                     <path d="M50 30 Q50 20 60 20 Q70 20 70 30" stroke="currentColor" stroke-width="2" fill="none"/>
                 </svg>
-                <span class="brand-text">弦外</span>
-            </div>
-            <div class="nav-menu">
-                <button class="nav-btn active" data-tab="create">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                    <span>创作</span>
-                </button>
-                <button class="nav-btn" data-tab="history">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 3h18v18H3zM7 7h10v10H7z"/>
-                    </svg>
-                    <span>历史</span>
-                </button>
-                <button class="nav-btn" data-tab="settings">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
-                    </svg>
-                    <span>设置</span>
-                </button>
-            </div>
-            <div class="nav-user">
-                <div class="user-info">
-                    <span class="username">{{ username }}</span>
+                <div>
+                    <span class="brand-text">弦外</span>
+                    <p class="brand-sub">AI 播客 · 结构化洞察</p>
                 </div>
-                <button class="logout-btn" onclick="handleLogout()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
-                    </svg>
-                </button>
+            </div>
+            <div class="nav-actions">
+                <div class="pill">AI 聚焦</div>
+                <div class="pill ghost">协同讨论</div>
+                <div class="nav-user">
+                    <span class="username">{{ username }}</span>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- 主内容区域 -->
     <main class="main-content">
-        <!-- 创作页面 -->
-        <div class="tab-content active" id="create-tab">
-            <div class="content-wrapper">
-                <!-- 左侧：文本输入和参数设置 -->
-                <div class="left-panel">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>文本输入</h2>
-                            <span class="char-count" id="charCount">0 / 1024 字符</span>
-                        </div>
-                        <div class="card-body">
-                            <textarea 
-                                id="textInput" 
-                                class="text-input" 
-                                placeholder="在这里输入您要转换为语音的文本...&#10;&#10;提示：文本长度不能超过1024字节（约500个中文字符）"
-                                rows="12"
-                            ></textarea>
-                            <div class="input-actions">
-                                <button class="btn btn-secondary" onclick="clearText()">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                    </svg>
-                                    清空
-                                </button>
-                                <button class="btn btn-primary" onclick="generateAudio()" id="generateBtn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M19 11a7 7 0 0 1-7 7m0 0a7 7 0 0 1-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 0 1-3-3V5a3 3 0 0 1 6 0v6a3 3 0 0 1-3 3z"/>
-                                    </svg>
-                                    生成语音
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>语音参数</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="param-group">
-                                <label>
-                                    <span>发音人</span>
-                                    <select id="voiceSelect" class="select-input">
-                                        <option value="0">度小美 - 默认女声</option>
-                                        <option value="1">度小宇 - 男声</option>
-                                        <option value="3">度逍遥(基础) - 情感合成</option>
-                                        <option value="4">度丫丫 - 情感合成-童声</option>
-                                        <option value="5003">度逍遥(精品)</option>
-                                        <option value="5118">度小鹿</option>
-                                        <option value="106">度博文</option>
-                                        <option value="110">度小童</option>
-                                        <option value="111">度小萌</option>
-                                        <option value="103">度米朵</option>
-                                        <option value="5">度小娇</option>
-                                    </select>
-                                </label>
-                            </div>
-
-                            <div class="param-group">
-                                <label>
-                                    <span>语速</span>
-                                    <div class="slider-container">
-                                        <input type="range" id="speedSlider" min="0" max="9" value="5" class="slider">
-                                        <span class="slider-value" id="speedValue">5</span>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <div class="param-group">
-                                <label>
-                                    <span>音调</span>
-                                    <div class="slider-container">
-                                        <input type="range" id="pitchSlider" min="0" max="9" value="5" class="slider">
-                                        <span class="slider-value" id="pitchValue">5</span>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <div class="param-group">
-                                <label>
-                                    <span>音量</span>
-                                    <div class="slider-container">
-                                        <input type="range" id="volumeSlider" min="0" max="15" value="5" class="slider">
-                                        <span class="slider-value" id="volumeValue">5</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 右侧：音频播放和预览 -->
-                <div class="right-panel">
-                    <div class="card audio-card">
-                        <div class="card-header">
-                            <h2>音频预览</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="audio-player-container" id="audioPlayerContainer">
-                                <div class="empty-state">
-                                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M19 11a7 7 0 0 1-7 7m0 0a7 7 0 0 1-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 0 1-3-3V5a3 3 0 0 1 6 0v6a3 3 0 0 1-3 3z"/>
-                                    </svg>
-                                    <p>生成的音频将在这里显示</p>
-                                </div>
-                            </div>
-
-                            <div class="audio-controls" id="audioControls" style="display: none;">
-                                <audio id="audioPlayer" controls class="audio-element"></audio>
-                                <div class="audio-actions">
-                                    <button class="btn btn-secondary" onclick="downloadAudio()" id="downloadBtn">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                                        </svg>
-                                        下载
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="saveToHistory()" id="saveBtn">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                                            <path d="M17 21v-8H7v8M7 3v5h8"/>
-                                        </svg>
-                                        保存到历史
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>使用提示</h2>
-                        </div>
-                        <div class="card-body">
-                            <ul class="tips-list">
-                                <li>文本长度限制：不超过1024字节（约500个中文字符）</li>
-                                <li>支持中文文本转语音</li>
-                                <li>可以调整语速、音调、音量等参数</li>
-                                <li>生成的音频可以下载或保存到历史记录</li>
-                                <li>建议使用标点符号分隔，以获得更好的语音效果</li>
-                            </ul>
-                        </div>
-                    </div>
+        <section class="hero" id="podcastHero">
+            <div class="hero-cover">
+                <div class="cover-glow"></div>
+                <div class="cover-circle"></div>
+                <div class="cover-inner">
+                    <span class="wave-badge">AI 嵌入</span>
+                    <svg viewBox="0 0 80 80" class="hero-icon">
+                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
+                        <path d="M24 42 L36 30 L56 50" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <path d="M40 22 Q40 16 48 16 Q56 16 56 24" stroke="currentColor" stroke-width="3" fill="none"/>
+                    </svg>
                 </div>
             </div>
-        </div>
+            <div class="hero-body">
+                <div class="hero-meta">
+                    <p class="eyebrow">本期播客</p>
+                    <h1 id="podcastTitle">——</h1>
+                    <p class="subtitle" id="podcastDesc">——</p>
+                    <div class="tags" id="podcastTags"></div>
+                    <div class="meta-inline" id="podcastMeta"></div>
+                </div>
+                <div class="hero-actions">
+                    <button class="btn primary" id="playMainBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        播放
+                    </button>
+                    <button class="btn ghost" id="aiFocusBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/><path d="M2 12a10 10 0 0 1 20 0a10 10 0 0 1-20 0z"/>
+                        </svg>
+                        进入 AI 分析
+                    </button>
+                    <button class="btn ghost" id="openDiscussionBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        查看讨论
+                    </button>
+                </div>
+            </div>
+        </section>
 
-        <!-- 历史记录页面 -->
-        <div class="tab-content" id="history-tab">
-            <div class="content-wrapper">
-                <div class="card full-width">
+        <div class="grid">
+            <section class="stack">
+                <div class="card playback-card">
                     <div class="card-header">
-                        <h2>历史记录</h2>
-                        <button class="btn btn-secondary btn-sm" onclick="clearHistory()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            </svg>
-                            清空历史
-                        </button>
+                        <div>
+                            <p class="eyebrow">播放器 · 分段导航</p>
+                            <h2>音频播放 & 时间轴</h2>
+                        </div>
+                        <span class="pill ghost">点击分段进入讨论</span>
+                    </div>
+                    <div class="card-body playback-body">
+                        <div class="player-shell">
+                            <audio id="mainAudio" controls></audio>
+                            <div class="progress-info">
+                                <div class="progress-bar"><div id="progressFill"></div></div>
+                                <div class="progress-text" id="progressText">00:00 / 00:00</div>
+                            </div>
+                        </div>
+                        <div class="segment-list" id="segmentList"></div>
+                    </div>
+                </div>
+
+                <div class="card discussion-card">
+                    <div class="card-header">
+                        <div>
+                            <p class="eyebrow">协同讨论区</p>
+                            <h2>即时讨论 · 按分段聚焦</h2>
+                        </div>
+                        <span class="pill">AI 参与</span>
+                    </div>
+                    <div class="card-body" id="discussionList"></div>
+                </div>
+            </section>
+
+            <section class="stack">
+                <div class="card analysis-card">
+                    <div class="card-header">
+                        <div>
+                            <p class="eyebrow">AI 主题主旨</p>
+                            <h2>主旨提炼 · 要点速览</h2>
+                        </div>
+                        <span class="pill ghost">自动生成</span>
                     </div>
                     <div class="card-body">
-                        <div id="historyList" class="history-list">
-                            <div class="empty-state">
-                                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 3h18v18H3zM7 7h10v10H7z"/>
-                                </svg>
-                                <p>暂无历史记录</p>
-                            </div>
-                        </div>
+                        <div class="analysis-block" id="analysisTheme"></div>
+                        <div class="chip-list" id="takeawayList"></div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- 设置页面 -->
-        <div class="tab-content" id="settings-tab">
-            <div class="content-wrapper">
-                <div class="card full-width">
+                <div class="card breakdown-card">
                     <div class="card-header">
-                        <h2>设置</h2>
-                    </div>
-                    <div class="card-body">
-                        <div class="settings-section">
-                            <h3>账户信息</h3>
-                            <div class="settings-item">
-                                <span class="settings-label">用户名</span>
-                                <span class="settings-value" id="settingsUsername">{{ username }}</span>
-                            </div>
-                            <div class="settings-item">
-                                <span class="settings-label">邮箱</span>
-                                <span class="settings-value" id="settingsEmail">加载中...</span>
-                            </div>
-                        </div>
-
-                        <div class="settings-section">
-                            <h3>默认参数</h3>
-                            <p class="settings-desc">这些参数将在每次打开页面时自动应用</p>
-                            <div class="settings-item">
-                                <span class="settings-label">默认发音人</span>
-                                <select id="defaultVoice" class="select-input">
-                                    <option value="0">度小美 - 默认女声</option>
-                                    <option value="1">度小宇 - 男声</option>
-                                    <option value="3">度逍遥(基础) - 情感合成</option>
-                                    <option value="4">度丫丫 - 情感合成-童声</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="settings-section">
-                            <h3>其他</h3>
-                            <button class="btn btn-secondary" onclick="handleLogout()">
-                                退出登录
-                            </button>
+                        <div>
+                            <p class="eyebrow">结构化分段</p>
+                            <h2>核心内容拆解</h2>
                         </div>
                     </div>
+                    <div class="card-body" id="breakdownList"></div>
                 </div>
-            </div>
+
+                <div class="card recommend-card">
+                    <div class="card-header">
+                        <div>
+                            <p class="eyebrow">行为推荐</p>
+                            <h2>为你延伸 · 垂直扩展</h2>
+                        </div>
+                        <span class="pill ghost">基于听播偏好</span>
+                    </div>
+                    <div class="card-body" id="recommendList"></div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <!-- 加载遮罩 -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-        <p>正在生成语音...</p>
+    <div class="discussion-drawer" id="discussionDrawer">
+        <div class="drawer-header">
+            <div>
+                <p class="eyebrow">分段讨论</p>
+                <h3 id="drawerTitle">——</h3>
+                <p class="drawer-meta" id="drawerMeta">——</p>
+            </div>
+            <button class="icon-btn" id="closeDrawerBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="drawer-body">
+            <div class="focus-block" id="drawerSummary"></div>
+            <div class="message-list" id="drawerMessages"></div>
+        </div>
+        <div class="drawer-footer">
+            <input id="drawerInput" placeholder="向 AI 或其他听众发起讨论..." />
+            <button class="btn primary" id="sendMessageBtn">发送</button>
+        </div>
     </div>
 
-    <!-- 消息提示 -->
-    <div class="message-toast" id="messageToast"></div>
+    <div class="drawer-mask" id="drawerMask"></div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

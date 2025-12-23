@@ -7,96 +7,94 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <!-- Logo和标题区域 -->
-            <div class="auth-header">
-                <div class="logo-container">
-                    <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/>
-                        <path d="M30 50 L45 35 L70 60" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
-                        <path d="M50 30 Q50 20 60 20 Q70 20 70 30" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                </div>
-                <h1 class="app-title">弦外</h1>
-                <p class="app-subtitle">开始您的智能播客创作之旅</p>
-            </div>
-
-            <!-- 注册表单 -->
-            <form id="registerForm" class="auth-form">
-                <div class="form-group">
-                    <label for="regUsername">用户名</label>
-                    <input type="text" id="regUsername" name="username" placeholder="3-20个字符" required>
-                    <span class="error-message" id="regUsernameError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="regEmail">邮箱</label>
-                    <input type="email" id="regEmail" name="email" placeholder="请输入邮箱地址" required>
-                    <span class="error-message" id="regEmailError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="regPassword">密码</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" id="regPassword" name="password" placeholder="至少6个字符" required>
-                        <button type="button" class="toggle-password" id="toggleRegPassword">
-                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                    <span class="error-message" id="regPasswordError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label for="regConfirmPassword">确认密码</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" id="regConfirmPassword" name="confirm_password" placeholder="请再次输入密码" required>
-                        <button type="button" class="toggle-password" id="toggleRegConfirmPassword">
-                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                    <span class="error-message" id="regConfirmPasswordError"></span>
-                </div>
-
-                <div class="form-group">
-                    <label class="agree-terms">
-                        <input type="checkbox" id="agreeTerms" required>
-                        <span>我已阅读并同意 <a href="#" class="terms-link">服务条款</a> 和 <a href="#" class="terms-link">隐私政策</a></span>
-                    </label>
-                </div>
-
-                <button type="submit" class="auth-button" id="registerButton">
-                    <span>注册</span>
-                    <div class="button-loader" id="registerLoader"></div>
-                </button>
-
-                <div class="auth-divider">
-                    <span>或</span>
-                </div>
-
-                <div class="auth-footer">
-                    <p>已有账号？ <a href="{{ url_for('login') }}" class="auth-link">立即登录</a></p>
-                </div>
-            </form>
-
-            <!-- 消息提示 -->
-            <div class="message-toast" id="messageToast"></div>
+    <div class="auth-shell">
+        <div class="auth-hero">
+            <div class="hero-badge">弦外 · AI 播客</div>
+            <h1>注册新账号，开启协同创作</h1>
+            <p>桌面端优先，专为分段讨论与 AI 分析设计。注册后即可体验分段聚焦、要点提炼、垂直推荐。</p>
+            <ul class="hero-list">
+                <li>播客分区导航，点击分段进入讨论</li>
+                <li>AI 主旨/要点即刻呈现</li>
+                <li>行为偏好驱动的垂直内容推荐</li>
+            </ul>
         </div>
 
-        <!-- 背景装饰 -->
-        <div class="background-decoration">
-            <div class="wave wave1"></div>
-            <div class="wave wave2"></div>
-            <div class="wave wave3"></div>
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo-container">
+                        <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="3"/>
+                            <path d="M30 50 L45 35 L70 60" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/>
+                            <path d="M50 30 Q50 20 60 20 Q70 20 70 30" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    <h2 class="app-title">创建账号</h2>
+                    <p class="app-subtitle">快速开始你的智能播客之旅</p>
+                </div>
+
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="regUsername">用户名</label>
+                        <input type="text" id="regUsername" name="username" placeholder="3-20个字符" required>
+                        <span class="error-message" id="regUsernameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail">邮箱</label>
+                        <input type="email" id="regEmail" name="email" placeholder="请输入邮箱地址" required>
+                        <span class="error-message" id="regEmailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regPassword">密码</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="regPassword" name="password" placeholder="至少6个字符" required>
+                            <button type="button" class="toggle-password" id="toggleRegPassword">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-message" id="regPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regConfirmPassword">确认密码</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="regConfirmPassword" name="confirm_password" placeholder="请再次输入密码" required>
+                            <button type="button" class="toggle-password" id="toggleRegConfirmPassword">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="error-message" id="regConfirmPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="agree-terms">
+                            <input type="checkbox" id="agreeTerms" required>
+                            <span>我已阅读并同意 <a href="#" class="terms-link">服务条款</a> 和 <a href="#" class="terms-link">隐私政策</a></span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-button" id="registerButton">
+                        <span>注册</span>
+                        <div class="button-loader" id="registerLoader"></div>
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>已有账号？ <a href="{{ url_for('login') }}" class="auth-link">立即登录</a></p>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+    <div class="message-toast" id="messageToast"></div>
     <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 </body>
 </html>
