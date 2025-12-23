@@ -29,6 +29,20 @@ const podcast = {
     ]
 };
 
+const libraryItems = [
+    { title: 'AI 叙事与创作效率', author: 'XIANWAI Studio', duration: '38:20', status: '已发布', tag: 'AI / 科技' },
+    { title: '用分段讨论做社区共创', author: 'Community Lab', duration: '42:05', status: '草稿', tag: '社区 / 协作' },
+    { title: '垂直播客的增长飞轮', author: 'Growth FM', duration: '29:10', status: '已发布', tag: '商业 / 增长' },
+    { title: '深听：从泛听到精听的路径', author: 'Listen Deep', duration: '34:48', status: '收藏', tag: '生活 / 效率' }
+];
+
+const browseItems = [
+    { title: 'LLM 产品落地案例拆解', author: 'AI Insider', duration: '31:22', tag: 'ai', heat: '热度 3.2k' },
+    { title: '2 个月做出 1 万活跃的播客社群', author: 'BizTalk', duration: '27:40', tag: 'biz', heat: '热度 2.1k' },
+    { title: '个人知识库如何与播客联动', author: 'LifeFlow', duration: '36:05', tag: 'life', heat: '热度 1.8k' },
+    { title: '让听众变成共创者：分段共写实践', author: 'Co-create', duration: '33:12', tag: 'biz', heat: '热度 2.7k' }
+];
+
 let activeSegment = podcast.segments[0].id;
 const drawer = document.getElementById('discussionDrawer');
 const drawerMask = document.getElementById('drawerMask');
@@ -40,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBreakdown();
     renderRecommendations();
     renderDiscussion();
+    renderLibrary();
+    renderBrowse('all');
     bindAudio();
     bindDrawerControls();
 });
@@ -166,6 +182,13 @@ function bindDrawerControls() {
     document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
     drawerMask.addEventListener('click', closeDrawer);
     document.getElementById('sendMessageBtn').addEventListener('click', sendMessage);
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderBrowse(btn.dataset.filter);
+        });
+    });
 }
 
 function openDrawer(segmentId) {
@@ -242,6 +265,41 @@ function formatTime(sec) {
 function lookupSegmentTitle(id) {
     const seg = podcast.segments.find(s => s.id === id);
     return seg ? seg.title : '未命名分段';
+}
+
+function renderLibrary() {
+    const container = document.getElementById('libraryGrid');
+    container.innerHTML = libraryItems.map(item => `
+        <div class="library-card">
+            <div class="card-meta">
+                <span class="chip">${item.tag}</span>
+                <span class="status-pill">${item.status}</span>
+            </div>
+            <h4>${item.title}</h4>
+            <p class="muted">${item.author}</p>
+            <div class="meta-row">
+                <span>${item.duration}</span>
+                <button class="btn ghost small">打开</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderBrowse(filter) {
+    const container = document.getElementById('browseList');
+    const filtered = filter === 'all' ? browseItems : browseItems.filter(i => i.tag === filter);
+    container.innerHTML = filtered.map(item => `
+        <div class="browse-item">
+            <div>
+                <div class="title">${item.title}</div>
+                <div class="muted">${item.author} · ${item.duration}</div>
+            </div>
+            <div class="browse-meta">
+                <span class="chip gray">${item.heat}</span>
+                <button class="btn ghost small">播放</button>
+            </div>
+        </div>
+    `).join('');
 }
 
 function handleLogout() {
