@@ -29,14 +29,11 @@ const podcast = {
     ]
 };
 
-const libraryItems = [
-    { title: 'AI 叙事与创作效率', author: 'XIANWAI Studio', duration: '38:20', status: '已发布', tag: 'AI / 科技' },
-    { title: '用分段讨论做社区共创', author: 'Community Lab', duration: '42:05', status: '草稿', tag: '社区 / 协作' },
-    { title: '垂直播客的增长飞轮', author: 'Growth FM', duration: '29:10', status: '已发布', tag: '商业 / 增长' },
-    { title: '深听：从泛听到精听的路径', author: 'Listen Deep', duration: '34:48', status: '收藏', tag: '生活 / 效率' }
-];
+// 资源库已移除，相关数据不再维护
 
 const browseItems = [
+    // 把当前 hero 示例也放入浏览列表
+    { title: podcast.title, author: podcast.meta.host, duration: podcast.meta.duration, tag: 'ai', heat: `播放 ${podcast.meta.listens}`, audioUrl: podcast.audioUrl },
     { title: 'LLM 产品落地案例拆解', author: 'AI Insider', duration: '31:22', tag: 'ai', heat: '热度 3.2k' },
     { title: '2 个月做出 1 万活跃的播客社群', author: 'BizTalk', duration: '27:40', tag: 'biz', heat: '热度 2.1k' },
     { title: '个人知识库如何与播客联动', author: 'LifeFlow', duration: '36:05', tag: 'life', heat: '热度 1.8k' },
@@ -54,8 +51,25 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBreakdown();
     renderRecommendations();
     renderDiscussion();
-    renderLibrary();
-    renderBrowse('all');
+    // 仅在页面包含相应容器时渲染库/浏览内容（资源库为独立页）
+    if (document.getElementById('libraryGrid')) {
+        renderLibrary();
+    }
+    if (document.getElementById('browseList')) {
+        renderBrowse('all', 'browseList');
+    }
+    // 首页的“正在浏览”列表
+    if (document.getElementById('homeBrowseList')) {
+        renderBrowse('all', 'homeBrowseList');
+    }
+    if (document.getElementById('nowNav')) {
+        renderNowNav();
+    }
+    // 绑定 AI 聚焦 标签切换
+    if (document.getElementById('focusTabHome') && document.getElementById('focusTabNow')) {
+        document.getElementById('focusTabHome').addEventListener('click', () => switchFocusTab('home'));
+        document.getElementById('focusTabNow').addEventListener('click', () => switchFocusTab('now'));
+    }
     bindAudio();
     bindDrawerControls();
 });
@@ -158,6 +172,73 @@ function renderDiscussion() {
             <div class="meta">${d.time}</div>
         </div>
     `).join('');
+}
+
+function renderNowNav() {
+    const nowInner = document.getElementById('nowInner');
+    if (!nowInner) return;
+
+    const leftHtml = `
+        <div class="now-left" aria-hidden="true">
+            <div class="now-cover-lg">
+                <svg class="now-icon" viewBox="0 0 80 80"><circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="3"/><path d="M28 44 L38 34 L56 52" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+            </div>
+        </div>
+    `;
+
+    const rightHeader = `
+        <div class="now-right">
+            <div class="now-header">
+                <div class="now-meta">
+                    <h4 class="now-title">${escapeHtml(podcast.title)}</h4>
+                    <p class="now-desc muted">${escapeHtml(podcast.desc)}</p>
+                </div>
+                <div class="now-actions">
+                    <button class="btn primary small" id="nowPlayBtn">播放</button>
+                </div>
+            </div>
+            <div class="now-timeline">
+                <ul class="now-tl-list">
+                    ${podcast.segments.map(seg => `
+                        <li class="timeline-item" data-id="${seg.id}" data-start="${seg.start}">
+                            <div class="time-badge">${seg.start}</div>
+                            <div class="tl-content">
+                                <div class="tl-title">${escapeHtml(seg.title)}</div>
+                                <div class="tl-focus muted">${escapeHtml(seg.focus)}</div>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+
+    nowInner.innerHTML = leftHtml + rightHeader;
+
+    // bind play button to play whole podcast from start
+    const nowPlayBtn = document.getElementById('nowPlayBtn');
+    if (nowPlayBtn) {
+        nowPlayBtn.addEventListener('click', () => {
+            const audio = document.getElementById('mainAudio');
+            if (podcast.audioUrl) {
+                audio.src = podcast.audioUrl;
+            }
+            audio.currentTime = 0;
+            audio.play();
+        });
+    }
+
+    // bind timeline item clicks
+    nowInner.querySelectorAll('.timeline-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const id = item.dataset.id;
+            const start = item.dataset.start;
+            activeSegment = id;
+            highlightSegment();
+            openDrawer(id);
+            seekAudio(start);
+        });
+    });
 }
 
 function bindAudio() {
@@ -267,28 +348,21 @@ function lookupSegmentTitle(id) {
     return seg ? seg.title : '未命名分段';
 }
 
-function renderLibrary() {
-    const container = document.getElementById('libraryGrid');
-    container.innerHTML = libraryItems.map(item => `
-        <div class="library-card">
-            <div class="card-meta">
-                <span class="chip">${item.tag}</span>
-                <span class="status-pill">${item.status}</span>
-            </div>
-            <h4>${item.title}</h4>
-            <p class="muted">${item.author}</p>
-            <div class="meta-row">
-                <span>${item.duration}</span>
-                <button class="btn ghost small">打开</button>
-            </div>
-        </div>
-    `).join('');
-}
+// 渲染资源库逻辑已移除（资源库页面不再存在）
 
-function renderBrowse(filter) {
-    const container = document.getElementById('browseList');
-    const filtered = filter === 'all' ? browseItems : browseItems.filter(i => i.tag === filter);
-    container.innerHTML = filtered.map(item => `
+function renderBrowse(filter, containerId = 'browseList') {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    // 对首页的“正在浏览”列表进行随机化选择，并确保包含 hero 示例
+    let items = filter === 'all' ? browseItems.slice() : browseItems.filter(i => i.tag === filter);
+    if (containerId === 'homeBrowseList') {
+        // 首页展示：移除 hero（AI 创作者）以便单独在导航展示，随机选 4 项
+        items = items.filter(i => i.title !== podcast.title);
+        shuffleArray(items);
+        items = items.slice(0, 4);
+    }
+
+    container.innerHTML = items.map(item => `
         <div class="browse-item">
             <div>
                 <div class="title">${item.title}</div>
@@ -296,14 +370,65 @@ function renderBrowse(filter) {
             </div>
             <div class="browse-meta">
                 <span class="chip gray">${item.heat}</span>
-                <button class="btn ghost small">播放</button>
+                <button class="btn ghost small" data-title="${escapeHtml(item.title)}">播放</button>
             </div>
         </div>
     `).join('');
+
+    // 如果是首页的列表，绑定按钮到打开该条目的行为（例如将其设为当前 podcast）
+    if (containerId === 'homeBrowseList') {
+        container.querySelectorAll('button[data-title]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const title = btn.dataset.title;
+                // 找到该条目并将其加载到 hero / 播放器
+                const found = browseItems.find(i => i.title === title);
+                if (found) {
+                    // 将 hero 以及播放器切换为该条目（简单替换 text）
+                    document.getElementById('podcastTitle').textContent = found.title;
+                    document.getElementById('podcastDesc').textContent = `${found.author} · ${found.duration}`;
+                    // 尝试设置 audio src（如果有相关字段）
+                    if (found.audioUrl) {
+                        const audio = document.getElementById('mainAudio');
+                        audio.src = found.audioUrl;
+                        audio.play();
+                    }
+                }
+            });
+        });
+    }
 }
 
 function handleLogout() {
     window.location.href = '/logout';
+}
+
+// 简单 Fisher–Yates 随机打乱
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function switchFocusTab(tab) {
+    const homePanel = document.getElementById('focusHomePanel');
+    const nowPanel = document.getElementById('focusNowPanel');
+    const tabHomeBtn = document.getElementById('focusTabHome');
+    const tabNowBtn = document.getElementById('focusTabNow');
+    if (!homePanel || !nowPanel || !tabHomeBtn || !tabNowBtn) return;
+
+    if (tab === 'home') {
+        homePanel.style.display = '';
+        nowPanel.style.display = 'none';
+        tabHomeBtn.classList.add('active');
+        tabNowBtn.classList.remove('active');
+    } else {
+        homePanel.style.display = 'none';
+        nowPanel.style.display = '';
+        tabHomeBtn.classList.remove('active');
+        tabNowBtn.classList.add('active');
+    }
 }
 // 全局变量
 let currentAudioUrl = null;

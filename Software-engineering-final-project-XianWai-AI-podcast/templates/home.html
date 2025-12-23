@@ -36,49 +36,79 @@
     </nav>
 
     <main class="main-content">
-        <section class="hero" id="podcastHero">
-            <div class="hero-cover">
-                <div class="cover-glow"></div>
-                <div class="cover-circle"></div>
-                <div class="cover-inner">
-                    <span class="wave-badge">AI 嵌入</span>
-                    <svg viewBox="0 0 80 80" class="hero-icon">
-                        <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
-                        <path d="M24 42 L36 30 L56 50" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/>
-                        <path d="M40 22 Q40 16 48 16 Q56 16 56 24" stroke="currentColor" stroke-width="3" fill="none"/>
-                    </svg>
-                </div>
-            </div>
-            <div class="hero-body">
-                <div class="hero-meta">
-                    <p class="eyebrow">本期播客</p>
-                    <h1 id="podcastTitle">——</h1>
-                    <p class="subtitle" id="podcastDesc">——</p>
-                    <div class="tags" id="podcastTags"></div>
-                    <div class="meta-inline" id="podcastMeta"></div>
-                </div>
-                <div class="hero-actions">
-                    <button class="btn primary" id="playMainBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        播放
-                    </button>
-                    <button class="btn ghost" id="aiFocusBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"/><path d="M2 12a10 10 0 0 1 20 0a10 10 0 0 1-20 0z"/>
-                        </svg>
-                        进入 AI 分析
-                    </button>
-                    <button class="btn ghost" id="openDiscussionBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        </svg>
-                        查看讨论
-                    </button>
-                </div>
-            </div>
-        </section>
+        <!-- AI 聚焦 控制：首页 / 正在浏览 -->
+        <div class="ai-focus-tabs">
+            <button id="focusTabHome" class="focus-tab active">首页</button>
+            <button id="focusTabNow" class="focus-tab">正在浏览</button>
+        </div>
 
-        <div class="grid">
+        <!-- 首页：正在热播与推荐（美观卡片，随机展示） -->
+        <div id="focusHomePanel" class="focus-panel">
+            <section class="browse-now-section">
+                <div class="section-header">
+                    <div>
+                        <p class="eyebrow">正在热播</p>
+                        <h2>为你推荐</h2>
+                        <p class="section-desc">精选热播与推荐，点击播放以加载到上方播放栏。</p>
+                    </div>
+                    <div class="pill ghost">实时更新</div>
+                </div>
+                <div class="browse-list grid-cards" id="homeBrowseList"></div>
+            </section>
+        </div>
+
+        <!-- 正在浏览：展示 AI 创作者的自我修炼 以及播放器/分段/分析/讨论 -->
+        <div id="focusNowPanel" class="focus-panel" style="display:none">
+            <section class="hero" id="podcastHero">
+                <div class="hero-cover">
+                    <div class="cover-glow"></div>
+                    <div class="cover-circle"></div>
+                    <div class="cover-inner">
+                        <span class="wave-badge">AI 嵌入</span>
+                        <svg viewBox="0 0 80 80" class="hero-icon">
+                            <circle cx="40" cy="40" r="36" fill="none" stroke="currentColor" stroke-width="4"/>
+                            <path d="M24 42 L36 30 L56 50" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/>
+                            <path d="M40 22 Q40 16 48 16 Q56 16 56 24" stroke="currentColor" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="hero-body">
+                    <div class="hero-meta">
+                        <p class="eyebrow">本期播客</p>
+                        <h1 id="podcastTitle">——</h1>
+                        <p class="subtitle" id="podcastDesc">——</p>
+                        <div class="tags" id="podcastTags"></div>
+                        <div class="meta-inline" id="podcastMeta"></div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn primary" id="playMainBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            播放
+                        </button>
+                        <button class="btn ghost" id="aiFocusBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/><path d="M2 12a10 10 0 0 1 20 0a10 10 0 0 1-20 0z"/>
+                            </svg>
+                            进入 AI 分析
+                        </button>
+                        <button class="btn ghost" id="openDiscussionBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            查看讨论
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        <aside class="now-nav" id="nowNav">
+            <div class="card" id="nowNavCard">
+                <!-- JS 会渲染为左右两列：左 cover 右为主内容（标题/简介/播放/时间线） -->
+                <div id="nowInner"></div>
+            </div>
+        </aside>
+
+            <div class="grid">
             <section class="stack">
                 <div class="card playback-card">
                     <div class="card-header">
@@ -150,34 +180,7 @@
             </section>
         </div>
 
-        <section class="library-section">
-            <div class="section-header">
-                <div>
-                    <p class="eyebrow">资源库</p>
-                    <h2>已订阅与收藏</h2>
-                    <p class="section-desc">你的播客作品、草稿和收藏的节目都会汇集在这里。</p>
-                </div>
-                <div class="pill ghost">桌面端 · 批量管理</div>
-            </div>
-            <div class="library-grid" id="libraryGrid"></div>
-        </section>
-
-        <section class="browse-section">
-            <div class="section-header">
-                <div>
-                    <p class="eyebrow">浏览 / 发现</p>
-                    <h2>为你推荐的主题流</h2>
-                    <p class="section-desc">按主题、作者、热度筛选，快速挑选值得深听的内容。</p>
-                </div>
-                <div class="browse-filters">
-                    <button class="filter-btn active" data-filter="all">全部</button>
-                    <button class="filter-btn" data-filter="ai">AI / 科技</button>
-                    <button class="filter-btn" data-filter="biz">商业 / 增长</button>
-                    <button class="filter-btn" data-filter="life">生活 / 效率</button>
-                </div>
-            </div>
-            <div class="browse-list" id="browseList"></div>
-        </section>
+        <!-- 资源库/浏览 已移至独立页面（/library） -->
     </main>
 
     <div class="discussion-drawer" id="discussionDrawer">
